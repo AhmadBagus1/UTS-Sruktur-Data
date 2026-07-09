@@ -1,0 +1,219 @@
+1//Nama:Ahmad Bagus Prakoso
+//NIM: 230103124
+//Kelas: TI23A4
+
+#include <iostream>
+#include <string>
+#include <iomanip>
+using namespace std;
+
+class Karyawan {
+public:
+    int nip;
+    string nama;
+    int lamaKerja;
+    int jamLembur;
+    int gajiPokok;
+    int gajiLembur;
+    int totalGaji;
+
+    void hitungGaji(int gajiPokokPerJam, int gajiLemburPerJam, int jamKerjaPokok);
+    void inputData();
+    void cetakData(int no);
+    void tampilData();
+    bool cekData(int cariNIP);
+};
+
+void Karyawan::inputData() {
+    cout << "NIP             : "; cin >> nip;
+    cout << "Nama Karyawan   : "; cin.ignore(); getline(cin, nama);
+    cout << "Lama Kerja (jam): "; cin >> lamaKerja;
+    cout << "Jam Lembur (jam): "; cin >> jamLembur;
+}
+
+void Karyawan::hitungGaji(int gajiPokokPerJam, int gajiLemburPerJam, int jamKerjaPokok) {
+    gajiPokok = min(lamaKerja, jamKerjaPokok) * gajiPokokPerJam;
+    gajiLembur = jamLembur * gajiLemburPerJam;
+    totalGaji = gajiPokok + gajiLembur;
+}
+
+void Karyawan::cetakData(int no) {
+    cout << setw(5) << no << " | " << setw(5) << nip << " | " << setw(20) << nama << " | " << setw(10) << lamaKerja
+         << " | " << setw(10) << jamLembur << " | " << setw(10) << gajiPokok
+         << " | " << setw(10) << gajiLembur << " | " << setw(10) << totalGaji << endl;
+}
+
+void Karyawan::tampilData() {
+    cout << "NIP             : " << nip << endl;
+    cout << "Nama Karyawan   : " << nama << endl;
+    cout << "Lama Kerja (jam): " << lamaKerja << endl;
+    cout << "Jam Lembur (jam): " << jamLembur << endl;
+}
+
+bool Karyawan::cekData(int cariNIP) {
+    return nip == cariNIP;
+}
+
+class ManajemenKaryawan {
+private:
+    Karyawan* data[100];
+    int jumlahKaryawan;
+    const int gajiPokokPerJam;
+    const int gajiLemburPerJam;
+    const int jamKerjaPokok;
+
+public:
+    ManajemenKaryawan(int gajiPokok, int gajiLembur, int jamPokok);
+    void tambahData();
+    void cariData();
+    void ubahData();
+    void cetakData();
+    void inputData();
+    ~ManajemenKaryawan();
+};
+
+ManajemenKaryawan::ManajemenKaryawan(int gajiPokok, int gajiLembur, int jamPokok)
+    : gajiPokokPerJam(gajiPokok), gajiLemburPerJam(gajiLembur), jamKerjaPokok(jamPokok), jumlahKaryawan(0) {
+    for (int i = 0; i < 100; ++i) {
+ 
+    }
+}
+
+ManajemenKaryawan::~ManajemenKaryawan() {
+    for (int i = 0; i < jumlahKaryawan; ++i) {
+        delete data[i];
+    }
+}
+
+void ManajemenKaryawan::inputData() {
+    char ulang = 'Y';
+    while ((ulang == 'Y' || ulang == 'y') && jumlahKaryawan < 100) {
+        data[jumlahKaryawan] = new Karyawan;
+        cout << "Data Karyawan ke-" << jumlahKaryawan + 1 << ":" << endl;
+        data[jumlahKaryawan]->inputData();
+        data[jumlahKaryawan]->hitungGaji(gajiPokokPerJam, gajiLemburPerJam, jamKerjaPokok);
+        jumlahKaryawan++;
+        if (jumlahKaryawan < 100) {
+            cout << "Masih ada data lagi (Y/T): "; cin >> ulang;
+            cin.ignore(); 
+        } else {
+            cout << "Data karyawan penuh!" << endl;
+        }
+    }
+}
+
+void ManajemenKaryawan::tambahData() {
+    inputData();
+}
+
+void ManajemenKaryawan::cariData() {
+    char takon = 'Y';
+    while (takon == 'Y' || takon == 'y') {
+        int nocari;
+        bool temu = false;
+        cout << "NIP yang dicari : "; cin >> nocari;
+
+        for (int i = 0; i < jumlahKaryawan; i++) {
+            if (data[i]->cekData(nocari)) {
+                temu = true;
+                cout << "Data Karyawan ke-" << i + 1 << ":" << endl;
+                data[i]->tampilData();
+                break;
+            }
+        }
+        if (!temu) {
+            cout << "\nMaaf data tidak ditemukan.\n";
+        }
+        cout << "Mau cari data lagi (Y/T) :"; cin >> takon;
+        cin.ignore();
+    }
+}
+
+void ManajemenKaryawan::ubahData() {
+    char takon = 'Y';
+    while (takon == 'Y' || takon == 'y') {
+        int nocari;
+        bool temu = false;
+        cout << "NIP yang dicari : "; cin >> nocari;
+
+        for (int i = 0; i < jumlahKaryawan; i++) {
+            if (data[i]->cekData(nocari)) {
+                temu = true;
+                cout << "Data Karyawan ke-" << i + 1 << ":" << endl;
+                data[i]->tampilData();
+                cout << "Masukkan data baru:" << endl;
+                data[i]->inputData();
+                data[i]->hitungGaji(gajiPokokPerJam, gajiLemburPerJam, jamKerjaPokok);
+                break;
+            }
+        }
+        if (!temu) {
+            cout << "\nMaaf data tidak ditemukan.\n";
+        }
+        cout << "Mau ubah data lagi (Y/T) :"; cin >> takon;
+        cin.ignore(); 
+    }
+}
+
+void ManajemenKaryawan::cetakData() {
+    int totalGajiPokok = 0;
+    int totalGajiLembur = 0;
+    int totalGajiSemua = 0;
+
+    cout << "DAFTAR GAJI KARYAWAN TOKO KOMPUTER DUTA BANGSA SURAKARTA" << endl;
+    cout << "===================================================================================================" << endl;
+    cout << "No | NIP   | Nama   Karyawan      | Lama Kerja | Jam Lembur | Gaji Pokok | Gaji Lembur | Total Gaji" << endl;
+    cout << "===================================================================================================" << endl;
+
+    for (int i = 0; i < jumlahKaryawan; i++) {
+        data[i]->cetakData(i + 1);
+        totalGajiPokok += data[i]->gajiPokok;
+        totalGajiLembur += data[i]->gajiLembur;
+        totalGajiSemua += data[i]->totalGaji;
+    }
+
+    cout << "===================================================================================================" << endl;
+    cout << "							JUMLAH                       | " << setw(10) << totalGajiSemua << endl;
+}
+
+int main() {
+    ManajemenKaryawan manajemen(50000, 75000, 6);
+    int pilihan;
+    do {
+        cout << "MENU UTAMA\n";
+        cout << "1. ISI DATA\n";
+        cout << "2. TAMBAH DATA\n";
+        cout << "3. CARI DATA\n";
+        cout << "4. UBAH DATA\n";
+        cout << "5. CETAK DATA\n";
+        cout << "6. SELESAI\n";
+        cout << "Pilihan : "; cin >> pilihan;
+
+        switch (pilihan) {
+            case 1:
+                manajemen.inputData();
+                break;
+            case 2:
+                manajemen.tambahData();
+                break;
+            case 3:
+                manajemen.cariData();
+                break;
+            case 4:
+                manajemen.ubahData();
+                break;
+            case 5:
+                manajemen.cetakData();
+                break;
+            case 6:
+                cout << "Program selesai.\n";
+                break;
+            default:
+                cout << "Pilihan tidak valid.\n";
+                break;
+        }
+    } while (pilihan != 6);
+
+    return 0;
+}
+
